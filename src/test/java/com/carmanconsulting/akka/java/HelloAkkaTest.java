@@ -8,7 +8,7 @@ public class HelloAkkaTest extends AkkaTestCase {
 
     @Test
     public void testHelloAkka() {
-        ActorRef hello = system().actorOf(Props.create(HelloAkka.class));
+        ActorRef hello = system().actorOf(Props.create(HelloAkka.class), "hello");
         hello.tell("Akka", testActor());
         expectMsg("Hello, Akka!");
     }
