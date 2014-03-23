@@ -4,7 +4,6 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import akka.cluster.Cluster;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.routing.FromConfig;
@@ -22,7 +21,7 @@ public class PiCalculator extends UntypedActor {
 // Fields
 //----------------------------------------------------------------------------------------------------------------------
 
-    private static final int CHUNK_COUNT = 100000;
+    private static final int CHUNK_COUNT = 10000;
 
     private final LoggingAdapter logging = Logging.apply(this);
     private final ActorRef workerRouter = context().actorOf(FromConfig.getInstance().props(Props.create(CalculationWorker.class)), "workerRouter");
@@ -61,13 +60,13 @@ public class PiCalculator extends UntypedActor {
         }
     }
 
+    private void checkForWorkers() {
+        context().system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), self(), new CheckForWorkers(), context().dispatcher(), self());
+    }
+
     @Override
     public void preStart() {
         checkForWorkers();
-    }
-
-    private void checkForWorkers() {
-        context().system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), self(), new CheckForWorkers(), context().dispatcher(), self());
     }
 
 //----------------------------------------------------------------------------------------------------------------------
