@@ -28,6 +28,6 @@ public class CalculationWorker extends UntypedActor {
     public static void main(String[] args) {
         final Config config = ConfigFactory.parseResources(CalculationWorker.class, "worker.conf");
         ActorSystem system = ActorSystem.create("PiCalculator", config);
-        system.actorOf(Props.create(CalculationWorker.class), "calculationWorker");
+        //system.actorOf(Props.create(CalculationWorker.class), "calculationWorker");
     }
 }
