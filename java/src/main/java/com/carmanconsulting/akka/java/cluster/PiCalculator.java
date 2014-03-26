@@ -6,11 +6,16 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import akka.pattern.Patterns;
+import akka.pattern.PipeToSupport;
 import akka.routing.FromConfig;
 import akka.routing.GetRoutees;
 import akka.routing.Routees;
+import akka.util.Timeout;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
 import java.math.BigDecimal;
@@ -66,6 +71,15 @@ public class PiCalculator extends UntypedActor {
 
     @Override
     public void preStart() {
+        final Timeout timeout = Timeout.durationToTimeout(Duration.create(10, TimeUnit.SECONDS));
+        final Future<Object> future = Patterns.ask(self(), "hello", timeout);
+        final PipeToSupport.PipeableFuture<Object> pipe = Patterns.pipe(future, context().dispatcher());
+        try {
+            Await.result(future, timeout.duration());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         checkForWorkers();
     }
 
