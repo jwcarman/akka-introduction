@@ -32,21 +32,4 @@ public class StoppingTest extends AkkaTestCase {
             context().stop(self());
         }
     }
-
-    public static class EchoAndStopAfterN extends UntypedActor {
-        private int n;
-
-        public EchoAndStopAfterN(int n) {
-            this.n = n;
-        }
-
-        @Override
-        public void onReceive(Object message) throws Exception {
-            sender().tell(message, self());
-            if (n-- == 0) {
-                self().tell(PoisonPill.getInstance(), ActorRef.noSender());
-            }
-
-        }
-    }
 }
