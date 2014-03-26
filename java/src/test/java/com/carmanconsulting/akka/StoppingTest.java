@@ -1,7 +1,6 @@
 package com.carmanconsulting.akka;
 
 import akka.actor.ActorRef;
-import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
