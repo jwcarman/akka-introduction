@@ -1,4 +1,4 @@
-package com.carmanconsulting.akka.java;
+package com.carmanconsulting.akka;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -9,14 +9,14 @@ public class PropsTest extends AkkaTestCase {
 
     @Test
     public void testWithNoArguments() {
-        ActorRef hello = system().actorOf(Props.create(ParameterizedHelloAkka.class), "hello");
+        ActorRef hello = system().actorOf(Props.create(HelloAkka.class), "hello");
         hello.tell("Akka", testActor());
         expectMsg("Hello, Akka!");
     }
 
     @Test
     public void testWithArguments() {
-        ActorRef hello = system().actorOf(Props.create(ParameterizedHelloAkka.class, "Hola, %s!"), "hello");
+        ActorRef hello = system().actorOf(Props.create(HelloAkka.class, "Hola, %s!"), "hello");
         hello.tell("Akka", testActor());
         expectMsg("Hola, Akka!");
     }
@@ -28,10 +28,10 @@ public class PropsTest extends AkkaTestCase {
         expectMsg("Bonjour, Akka!");
     }
 
-    public static class HelloAkkaActorCreator implements Creator<ParameterizedHelloAkka> {
+    public static class HelloAkkaActorCreator implements Creator<HelloAkka> {
         @Override
-        public ParameterizedHelloAkka create() throws Exception {
-            return new ParameterizedHelloAkka("Bonjour, %s!");
+        public HelloAkka create() throws Exception {
+            return new HelloAkka("Bonjour, %s!");
         }
     }
 }

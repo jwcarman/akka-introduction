@@ -1,4 +1,4 @@
-package com.carmanconsulting.akka.java;
+package com.carmanconsulting.akka;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -8,7 +8,7 @@ public class HelloAkkaTest extends AkkaTestCase {
 
     @Test
     public void testHelloAkka() {
-        ActorRef hello = system().actorOf(Props.create(HelloAkka.class), "hello");
+        ActorRef hello = system().actorOf(HelloAkka.props(), "hello");
         hello.tell("Akka", testActor());
         expectMsg("Hello, Akka!");
     }

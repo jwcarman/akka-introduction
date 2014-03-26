@@ -1,47 +1,48 @@
-package com.carmanconsulting.akka.java.cluster;
+package com.carmanconsulting.akka;
 
-import java.io.Serializable;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
 
-public class CalculationChunk implements Serializable {
+public class HelloAkka extends UntypedActor {
 //----------------------------------------------------------------------------------------------------------------------
 // Fields
 //----------------------------------------------------------------------------------------------------------------------
 
-    private static final int CHUNK_SIZE = 1000;
+    public static final String DEFAULT_FORMAT = "Hello, %s!";
 
-    private final int chunkIndex;
+    private final String format;
+
+//----------------------------------------------------------------------------------------------------------------------
+// Static Methods
+//----------------------------------------------------------------------------------------------------------------------
+
+    public static Props props() {
+        return Props.create(HelloAkka.class);
+    }
+
+    public static Props props(String format) {
+        return Props.create(HelloAkka.class, format);
+    }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 
-    public CalculationChunk(int chunkIndex) {
-        this.chunkIndex = chunkIndex;
+    public HelloAkka() {
+        this(DEFAULT_FORMAT);
+    }
+
+    public HelloAkka(String format) {
+        this.format = format;
     }
 
 //----------------------------------------------------------------------------------------------------------------------
-// Getter/Setter Methods
+// Canonical Methods
 //----------------------------------------------------------------------------------------------------------------------
 
-    public int getChunkIndex() {
-        return chunkIndex;
-    }
-
-//----------------------------------------------------------------------------------------------------------------------
-// Other Methods
-//----------------------------------------------------------------------------------------------------------------------
-
-    public CalculationResult evaluate() {
-        double result = 0.0;
-        final int baseIndex = CHUNK_SIZE * chunkIndex;
-        for (int i = 0; i < CHUNK_SIZE; ++i) {
-            result += seriesValue(baseIndex + i);
-        }
-        return new CalculationResult(result, chunkIndex);
-    }
-
-    private static double seriesValue(int index) {
-        final double sign = index % 2 == 0 ? 1 : -1;
-        return sign / (2 * index + 1);
+    @Override
+    public void onReceive(Object message) {
+        final String response = String.format(format, message);
+        getSender().tell(response, getSelf());
     }
 }

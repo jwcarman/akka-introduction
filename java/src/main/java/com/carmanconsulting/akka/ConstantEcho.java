@@ -1,26 +1,29 @@
-package com.carmanconsulting.akka.java;
+package com.carmanconsulting.akka;
 
+import akka.actor.Props;
 import akka.actor.UntypedActor;
 
-public class ParameterizedHelloAkka extends UntypedActor {
+public class ConstantEcho extends UntypedActor {
 //----------------------------------------------------------------------------------------------------------------------
 // Fields
 //----------------------------------------------------------------------------------------------------------------------
 
-    public static final String DEFAULT_FORMAT = "Hello, %s!";
+    private final Object reply;
 
-    private final String format;
+//----------------------------------------------------------------------------------------------------------------------
+// Static Methods
+//----------------------------------------------------------------------------------------------------------------------
+
+    public static Props props(Object reply) {
+        return Props.create(ConstantEcho.class, reply);
+    }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 
-    public ParameterizedHelloAkka() {
-        this(DEFAULT_FORMAT);
-    }
-
-    public ParameterizedHelloAkka(String format) {
-        this.format = format;
+    public ConstantEcho(Object reply) {
+        this.reply = reply;
     }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -28,8 +31,7 @@ public class ParameterizedHelloAkka extends UntypedActor {
 //----------------------------------------------------------------------------------------------------------------------
 
     @Override
-    public void onReceive(Object message) {
-        final String response = String.format(format, message);
-        getSender().tell(response, getSelf());
+    public void onReceive(Object message) throws Exception {
+        sender().tell(reply, self());
     }
 }
