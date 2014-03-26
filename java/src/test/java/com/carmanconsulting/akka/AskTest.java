@@ -10,13 +10,14 @@ import akka.pattern.AskTimeoutException;
 import akka.testkit.TestActor;
 import akka.util.Timeout;
 import org.junit.Test;
+import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
 import java.util.concurrent.TimeUnit;
 
 import static akka.pattern.Patterns.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AskTest extends AkkaTestCase {
 
@@ -84,8 +85,18 @@ public class AskTest extends AkkaTestCase {
         ActorRef hello = system().actorOf(HelloAkka.props());
         final Timeout timeout = new Timeout(Duration.create(5, TimeUnit.SECONDS));
         final Future<Object> future = ask(hello, "Akka", timeout);
-        pipe(future, system().dispatcher()).to(testActor());
+        final ActorRef recipient = testActor();
+        pipe(future, system().dispatcher()).to(recipient);
         expectMsg("Hello, Akka!");
+    }
+
+    @Test
+    public void testWithAwait() throws Exception {
+        ActorRef hello = system().actorOf(HelloAkka.props());
+        final Timeout timeout = new Timeout(Duration.create(5, TimeUnit.SECONDS));
+        final Future<Object> future = ask(hello, "Akka", timeout);
+        final Object result = Await.result(future, timeout.duration());
+        assertEquals("Hello, Akka!", result);
     }
 
     @Test
