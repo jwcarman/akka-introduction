@@ -43,13 +43,13 @@ public class RestartChildrenTest extends AkkaTestCase {
 
         @Override
         public void preRestart(Throwable reason, Option<Object> message) throws Exception {
-            log.info("preRestart({}, {})", reason, message);
+            log.info("{} preRestart({}, {})", instanceNumber, reason, message);
             postStop();
         }
 
         @Override
         public void postRestart(Throwable reason) throws Exception {
-            log.info("postRestart({})", reason);
+            log.info("{} postRestart({})", instanceNumber, reason);
         }
     }
 }
