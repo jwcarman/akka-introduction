@@ -3,7 +3,7 @@ package com.carmanconsulting.akka;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 
-public class DevNull extends UntypedActor {
+public class DevNull extends LifecycleLogger {
 //----------------------------------------------------------------------------------------------------------------------
 // Static Methods
 //----------------------------------------------------------------------------------------------------------------------

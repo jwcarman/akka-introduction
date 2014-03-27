@@ -3,7 +3,7 @@ package com.carmanconsulting.akka;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 
-public class ConstantEcho extends UntypedActor {
+public class ConstantEcho extends LifecycleLogger {
 //----------------------------------------------------------------------------------------------------------------------
 // Fields
 //----------------------------------------------------------------------------------------------------------------------
