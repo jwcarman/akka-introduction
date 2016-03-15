@@ -1,12 +1,10 @@
 package com.carmanconsulting.akka;
 
-import akka.actor.ActorRef;
-import akka.actor.Kill;
-import akka.actor.PoisonPill;
-import akka.actor.Props;
-import akka.actor.Terminated;
-import akka.actor.UntypedActor;
+import akka.actor.*;
+import akka.japi.pf.ReceiveBuilder;
 import org.junit.Test;
+import scala.PartialFunction;
+import scala.runtime.BoxedUnit;
 
 public class StoppingTest extends AkkaTestCase {
 //----------------------------------------------------------------------------------------------------------------------
@@ -14,16 +12,16 @@ public class StoppingTest extends AkkaTestCase {
 //----------------------------------------------------------------------------------------------------------------------
 
     @Test
-    public void testStopMethod() {
-        ActorRef echo = system().actorOf(Props.create(StopOnHalt.class), "stopMethod");
+    public void testKill() {
+        ActorRef echo = system().actorOf(Props.create(KillOnHalt.class), "kill");
         watch(echo);
         echo.tell("Hello", testActor());
         echo.tell("Halt", testActor());
         echo.tell("Hello", testActor());
 
-
-        expectMsg("Hello");
-        expectMsg("Halt");
+        expectMsgEquals("Hello");
+        expectMsgEquals("Halt");
+        expectMsgEquals("Hello");
         expectMsgClass(Terminated.class);
         expectNoMsg();
     }
@@ -36,24 +34,24 @@ public class StoppingTest extends AkkaTestCase {
         echo.tell("Halt", testActor());
         echo.tell("Hello", testActor());
 
-        expectMsg("Hello");
-        expectMsg("Halt");
-        expectMsg("Hello");
+        expectMsgEquals("Hello");
+        expectMsgEquals("Halt");
+        expectMsgEquals("Hello");
         expectMsgClass(Terminated.class);
         expectNoMsg();
     }
 
     @Test
-    public void testKill() {
-        ActorRef echo = system().actorOf(Props.create(KillOnHalt.class), "kill");
+    public void testStopMethod() {
+        ActorRef echo = system().actorOf(Props.create(StopOnHalt.class), "stopMethod");
         watch(echo);
         echo.tell("Hello", testActor());
         echo.tell("Halt", testActor());
         echo.tell("Hello", testActor());
 
-        expectMsg("Hello");
-        expectMsg("Halt");
-        expectMsg("Hello");
+
+        expectMsgEquals("Hello");
+        expectMsgEquals("Halt");
         expectMsgClass(Terminated.class);
         expectNoMsg();
     }
@@ -62,35 +60,42 @@ public class StoppingTest extends AkkaTestCase {
 // Inner Classes
 //----------------------------------------------------------------------------------------------------------------------
 
-    public static class StopOnHalt extends LifecycleLogger {
+    public static class KillOnHalt extends LifecycleLogger {
         @Override
-        public void onReceive(Object message) throws Exception {
-            sender().tell(message, self());
-            if("Halt".equals(message)) {
-                context().stop(self());
-            }
+        public PartialFunction<Object, BoxedUnit> receive() {
+            return ReceiveBuilder
+                    .matchEquals("Halt", msg -> {
+                        sender().tell(msg, self());
+                        self().tell(Kill.getInstance(), self());
+                    })
+                    .match(String.class, msg -> sender().tell(msg, self()))
+                    .build();
         }
     }
 
     public static class PoisonPillOnHalt extends LifecycleLogger {
         @Override
-        public void onReceive(Object message) throws Exception {
-            sender().tell(message, self());
-            if("Halt".equals(message)) {
-                self().tell(PoisonPill.getInstance(), self());
-
-            }
+        public PartialFunction<Object, BoxedUnit> receive() {
+            return ReceiveBuilder
+                    .matchEquals("Halt", msg -> {
+                        sender().tell(msg, self());
+                        self().tell(PoisonPill.getInstance(), self());
+                    })
+                    .match(String.class, msg -> sender().tell(msg, self()))
+                    .build();
         }
     }
 
-    public static class KillOnHalt extends LifecycleLogger {
+    public static class StopOnHalt extends LifecycleLogger {
         @Override
-        public void onReceive(Object message) throws Exception {
-            sender().tell(message, self());
-            if("Halt".equals(message)) {
-                self().tell(Kill.getInstance(), self());
-
-            }
+        public PartialFunction<Object, BoxedUnit> receive() {
+            return ReceiveBuilder
+                    .matchEquals("Halt", msg -> {
+                        sender().tell(msg, self());
+                        context().stop(self());
+                    })
+                    .match(String.class, msg -> sender().tell(msg, self()))
+                    .build();
         }
     }
 }

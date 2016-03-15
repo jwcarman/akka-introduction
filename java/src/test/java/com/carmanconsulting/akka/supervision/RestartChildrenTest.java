@@ -2,10 +2,14 @@ package com.carmanconsulting.akka.supervision;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.japi.pf.ReceiveBuilder;
 import com.carmanconsulting.akka.AkkaTestCase;
+import com.carmanconsulting.akka.DevNull;
 import com.carmanconsulting.akka.LifecycleLogger;
 import org.junit.Test;
 import scala.Option;
+import scala.PartialFunction;
+import scala.runtime.BoxedUnit;
 
 public class RestartChildrenTest extends AkkaTestCase {
 
@@ -16,15 +20,14 @@ public class RestartChildrenTest extends AkkaTestCase {
         expectNoMsg();
     }
 
+
+
 //----------------------------------------------------------------------------------------------------------------------
 // Inner Classes
 //----------------------------------------------------------------------------------------------------------------------
 
-    public static class Child extends LifecycleLogger {
-        @Override
-        public void onReceive(Object message) throws Exception {
-            unhandled(message);
-        }
+    public static class Child extends DevNull {
+
     }
 
     public static class Parent extends LifecycleLogger {
@@ -37,8 +40,11 @@ public class RestartChildrenTest extends AkkaTestCase {
         }
 
         @Override
-        public void onReceive(Object message) throws Exception {
-            throw new IllegalArgumentException(String.valueOf(message));
+        public PartialFunction<Object, BoxedUnit> receive() {
+            return ReceiveBuilder.matchAny(x -> {
+                throw new IllegalArgumentException(String.valueOf(x));
+
+            }).build();
         }
 
         @Override

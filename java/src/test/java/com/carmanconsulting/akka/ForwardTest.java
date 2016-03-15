@@ -1,24 +1,33 @@
 package com.carmanconsulting.akka;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import akka.actor.UntypedActor;
-import akka.testkit.TestActor;
+import akka.japi.pf.ReceiveBuilder;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import scala.PartialFunction;
+import scala.runtime.BoxedUnit;
+
+import static org.junit.Assert.assertEquals;
 
 public class ForwardTest extends AkkaTestCase {
+//----------------------------------------------------------------------------------------------------------------------
+// Other Methods
+//----------------------------------------------------------------------------------------------------------------------
 
     @Test
     public void testForwarding() {
         ActorRef forwarder = system().actorOf(Props.create(Forwarder.class, testActor()));
         forwarder.tell("Hello", testActor());
-        expectMsg("Hello");
-        final TestActor.Message message = lastMessage();
-        assertEquals(testActor(), message.sender());
+        expectMsgEquals("Hello");
+        assertEquals(testActor(), getLastSender());
     }
 
-    public static class Forwarder extends UntypedActor {
+//----------------------------------------------------------------------------------------------------------------------
+// Inner Classes
+//----------------------------------------------------------------------------------------------------------------------
+
+    public static class Forwarder extends AbstractActor {
         private final ActorRef target;
 
         public Forwarder(ActorRef target) {
@@ -26,8 +35,8 @@ public class ForwardTest extends AkkaTestCase {
         }
 
         @Override
-        public void onReceive(Object message) throws Exception {
-            target.forward(message, context());
+        public PartialFunction<Object, BoxedUnit> receive() {
+            return ReceiveBuilder.matchAny(x -> target.forward(x, context())).build();
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.carmanconsulting.akka;
 
 import akka.actor.ActorRef;
-import akka.actor.Props;
 import org.junit.Test;
 
 public class HelloAkkaTest extends AkkaTestCase {
@@ -10,6 +9,6 @@ public class HelloAkkaTest extends AkkaTestCase {
     public void testHelloAkka() {
         ActorRef hello = system().actorOf(HelloAkka.props(), "hello");
         hello.tell("Akka", testActor());
-        expectMsg("Hello, Akka!");
+        expectMsgEquals("Hello, Akka!");
     }
 }

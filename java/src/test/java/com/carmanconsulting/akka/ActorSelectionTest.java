@@ -1,12 +1,15 @@
 package com.carmanconsulting.akka;
 
+import java.util.Arrays;
+import java.util.List;
+
 import akka.actor.ActorIdentity;
 import akka.actor.ActorSelection;
 import akka.actor.Identify;
 import org.junit.Test;
-import scala.collection.immutable.Seq;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ActorSelectionTest extends AkkaTestCase {
 //----------------------------------------------------------------------------------------------------------------------
@@ -15,18 +18,18 @@ public class ActorSelectionTest extends AkkaTestCase {
 
     @Test
     public void testIdentifying() {
-        system().actorOf(ConstantEcho.props("foo"), "foo");
+        getSystem().actorOf(ConstantEcho.props("foo"), "foo");
 
-        final ActorSelection selection = system().actorSelection("/user/foo");
+        final ActorSelection selection = getSystem().actorSelection("/user/foo");
         selection.tell(new Identify("identifyFoo"), testActor());
 
-        final Seq<Object> seq = receiveN(1);
+        final Object[] seq = receiveN(1);
 
-        ActorIdentity identity = (ActorIdentity) seq.apply(0);
+        ActorIdentity identity = (ActorIdentity) seq[0];
         assertEquals("identifyFoo", identity.correlationId());
 
         identity.getRef().tell("baz", testActor());
-        expectMsg("foo");
+        expectMsgEquals("foo");
     }
 
     @Test
@@ -36,7 +39,7 @@ public class ActorSelectionTest extends AkkaTestCase {
 
         final ActorSelection selection = system().actorSelection("/user/*");
         selection.tell("baz", testActor());
-        final Seq<Object> messages = receiveN(2);
+        final List<Object> messages = Arrays.asList(receiveN(2));
         assertTrue(messages.contains("foo"));
         assertTrue(messages.contains("bar"));
     }
@@ -47,6 +50,6 @@ public class ActorSelectionTest extends AkkaTestCase {
         system().actorOf(ConstantEcho.props("bar"), "bar");
         ActorSelection selection = system().actorSelection("/user/foo");
         selection.tell("baz", testActor());
-        expectMsg("foo");
+        expectMsgEquals("foo");
     }
 }

@@ -1,13 +1,13 @@
 package com.carmanconsulting.akka;
 
-import akka.actor.UntypedActor;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import scala.Option;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-public abstract class LifecycleLogger extends UntypedActor {
+public abstract class LifecycleLogger extends AbstractActor {
 //----------------------------------------------------------------------------------------------------------------------
 // Fields
 //----------------------------------------------------------------------------------------------------------------------
@@ -44,4 +44,6 @@ public abstract class LifecycleLogger extends UntypedActor {
         log.info("{} preRestart({}, {})", instanceNumber, reason, message);
         super.preRestart(reason, message);
     }
+
+
 }

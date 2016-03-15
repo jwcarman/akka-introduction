@@ -1,7 +1,9 @@
 package com.carmanconsulting.akka;
 
 import akka.actor.Props;
-import akka.actor.UntypedActor;
+import akka.japi.pf.ReceiveBuilder;
+import scala.PartialFunction;
+import scala.runtime.BoxedUnit;
 
 public class HelloAkka extends LifecycleLogger {
 //----------------------------------------------------------------------------------------------------------------------
@@ -41,8 +43,9 @@ public class HelloAkka extends LifecycleLogger {
 //----------------------------------------------------------------------------------------------------------------------
 
     @Override
-    public void onReceive(Object message) {
-        final String response = String.format(format, message);
-        getSender().tell(response, getSelf());
+    public PartialFunction<Object, BoxedUnit> receive() {
+        return ReceiveBuilder.match(String.class, msg -> {
+            sender().tell(String.format(format, msg), self());
+        }).build();
     }
 }

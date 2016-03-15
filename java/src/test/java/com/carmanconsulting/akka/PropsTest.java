@@ -11,21 +11,21 @@ public class PropsTest extends AkkaTestCase {
     public void testWithNoArguments() {
         ActorRef hello = system().actorOf(Props.create(HelloAkka.class), "hello");
         hello.tell("Akka", testActor());
-        expectMsg("Hello, Akka!");
+        expectMsgEquals("Hello, Akka!");
     }
 
     @Test
     public void testWithArguments() {
         ActorRef hello = system().actorOf(Props.create(HelloAkka.class, "Hola, %s!"), "hello");
         hello.tell("Akka", testActor());
-        expectMsg("Hola, Akka!");
+        expectMsgEquals("Hola, Akka!");
     }
 
     @Test
     public void testWithCreator() {
         ActorRef hello = system().actorOf(Props.create(new HelloAkkaActorCreator()), "hello");
         hello.tell("Akka", testActor());
-        expectMsg("Bonjour, Akka!");
+        expectMsgEquals("Bonjour, Akka!");
     }
 
     public static class HelloAkkaActorCreator implements Creator<HelloAkka> {

@@ -1,11 +1,14 @@
 package com.carmanconsulting.akka;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.ReceiveTimeout;
-import akka.actor.UntypedActor;
+import akka.japi.pf.ReceiveBuilder;
 import org.junit.Test;
+import scala.PartialFunction;
 import scala.concurrent.duration.Duration;
+import scala.runtime.BoxedUnit;
 
 public class ReceiveTimeoutTest extends AkkaTestCase {
 //----------------------------------------------------------------------------------------------------------------------
@@ -15,14 +18,14 @@ public class ReceiveTimeoutTest extends AkkaTestCase {
     @Test
     public void testReceiveTimeout() throws Exception {
         system().actorOf(Props.create(ReceiveTimeoutActor.class, testActor()), "receiveTimeout");
-        expectMsg("ReceiveTimeout!");
+        expectMsgEquals("ReceiveTimeout!");
     }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Inner Classes
 //----------------------------------------------------------------------------------------------------------------------
 
-    public static class ReceiveTimeoutActor extends UntypedActor {
+    public static class ReceiveTimeoutActor extends AbstractActor {
         private final ActorRef listener;
 
         public ReceiveTimeoutActor(ActorRef listener) {
@@ -35,12 +38,10 @@ public class ReceiveTimeoutTest extends AkkaTestCase {
         }
 
         @Override
-        public void onReceive(Object message) throws Exception {
-            if (message instanceof ReceiveTimeout) {
-                listener.tell("ReceiveTimeout!", self());
-            } else {
-                unhandled(message);
-            }
+        public PartialFunction<Object, BoxedUnit> receive() {
+            return ReceiveBuilder
+                    .match(ReceiveTimeout.class, timeout -> listener.tell("ReceiveTimeout!", ReceiveTimeoutActor.this.self()))
+                    .matchAny(this::unhandled).build();
         }
     }
 }

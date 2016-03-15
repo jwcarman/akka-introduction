@@ -1,7 +1,9 @@
 package com.carmanconsulting.akka;
 
 import akka.actor.Props;
-import akka.actor.UntypedActor;
+import akka.japi.pf.ReceiveBuilder;
+import scala.PartialFunction;
+import scala.runtime.BoxedUnit;
 
 public class ConstantEcho extends LifecycleLogger {
 //----------------------------------------------------------------------------------------------------------------------
@@ -31,7 +33,7 @@ public class ConstantEcho extends LifecycleLogger {
 //----------------------------------------------------------------------------------------------------------------------
 
     @Override
-    public void onReceive(Object message) throws Exception {
-        sender().tell(reply, self());
+    public PartialFunction<Object, BoxedUnit> receive() {
+        return ReceiveBuilder.matchAny(x -> sender().tell(reply, self())).build();
     }
 }
