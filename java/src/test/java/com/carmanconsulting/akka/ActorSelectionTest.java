@@ -38,6 +38,7 @@ public class ActorSelectionTest extends AkkaTestCase {
         system().actorOf(ConstantEcho.props("bar"), "bar");
 
         final ActorSelection selection = system().actorSelection("/user/*");
+
         selection.tell("baz", testActor());
         final List<Object> messages = Arrays.asList(receiveN(2));
         assertTrue(messages.contains("foo"));
